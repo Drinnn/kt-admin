@@ -10,6 +10,7 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [process.env.AMQP_CONNECTION_URL],
+      noAck: false,
       queue: 'admin',
     },
   });
