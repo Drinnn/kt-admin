@@ -11,6 +11,6 @@ export class AppController {
 
   @EventPattern('create-category')
   async createCategory(@Payload() category: Category) {
-    this.appService.createCategory(category);
+    await this.appService.createCategory(category);
   }
 }
