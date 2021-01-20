@@ -45,4 +45,16 @@ export class AppService {
       throw new RpcException(err.message);
     }
   }
+
+  async updateCategory(name: string, category: Category): Promise<void> {
+    try {
+      await this.categoryModel
+        .findOneAndUpdate({ name }, { $set: category })
+        .exec();
+    } catch (err) {
+      this.logger.error(`error: ${JSON.stringify(err.message)}`);
+
+      throw new RpcException(err.message);
+    }
+  }
 }
