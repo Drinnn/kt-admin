@@ -6,24 +6,24 @@ import {
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
-import { CategoriesService } from './categories.service';
-import { Category } from './interfaces/categories.interface';
+import { Player } from './interfaces/players.interface';
+import { PlayersService } from './players.service';
 
-@Controller('categories')
-export class CategoriesController {
+@Controller('players')
+export class PlayersController {
   private readonly ackErrors: string[] = ['E11000'];
-  private readonly logger = new Logger(CategoriesController.name);
-  constructor(private readonly categoriesService: CategoriesService) {}
+  private readonly logger = new Logger(PlayersController.name);
+  constructor(private readonly playersService: PlayersService) {}
 
-  @EventPattern('create-category')
-  async create(@Payload() category: Category, @Ctx() context: RmqContext) {
+  @EventPattern('create-player')
+  async create(@Payload() player: Player, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMessage = context.getMessage();
 
-    this.logger.log(`${this.create.name} data: ${JSON.stringify(category)}`);
+    this.logger.log(`${this.create.name} data: ${JSON.stringify(player)}`);
 
     try {
-      await this.categoriesService.create(category);
+      await this.playersService.create(player);
       await channel.ack(originalMessage);
     } catch (err) {
       this.logger.error(
@@ -37,7 +37,7 @@ export class CategoriesController {
     }
   }
 
-  @MessagePattern('get-categories')
+  @MessagePattern('get-players')
   async get(@Payload() id: string, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMessage = context.getMessage();
@@ -45,23 +45,23 @@ export class CategoriesController {
     this.logger.log(`${this.get.name} data: ${JSON.stringify(id)}`);
 
     try {
-      if (id) return await this.categoriesService.getById(id);
-      return await this.categoriesService.getAll();
+      if (id) return await this.playersService.getById(id);
+      return await this.playersService.getAll();
     } finally {
       await channel.ack(originalMessage);
     }
   }
 
-  @EventPattern('update-category')
+  @EventPattern('update-player')
   async update(@Payload() payload: any, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMessage = context.getMessage();
-    const { name, category } = payload;
+    const { id, player } = payload;
 
     this.logger.log(`${this.update.name} data: ${JSON.stringify(payload)}`);
 
     try {
-      await this.categoriesService.update(name, category);
+      await this.playersService.update(id, player);
       await channel.ack(originalMessage);
     } catch (err) {
       this.logger.error(
@@ -72,6 +72,20 @@ export class CategoriesController {
           await channel.ack(originalMessage);
         }
       });
+    }
+  }
+
+  @MessagePattern('delete-player')
+  async delete(@Payload() id: string, @Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMessage = context.getMessage();
+
+    this.logger.log(`${this.delete.name} data: ${JSON.stringify(id)}`);
+
+    try {
+      return await this.playersService.delete(id);
+    } finally {
+      await channel.ack(originalMessage);
     }
   }
 }
