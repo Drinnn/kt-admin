@@ -2,19 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Category } from './interfaces/categories/categories.interface';
-import { Player } from './interfaces/players/players.interface';
+import { Category } from './interfaces/categories.interface';
 
 @Injectable()
-export class AppService {
+export class CategoriesService {
+  private readonly logger = new Logger(CategoriesService.name);
+
   constructor(
     @InjectModel('Category') private readonly categoryModel: Model<Category>,
-    @InjectModel('Player') private readonly playerModel: Model<Player>,
   ) {}
 
-  private readonly logger = new Logger(AppService.name);
-
-  async createCategory(category: Category): Promise<Category> {
+  async create(category: Category): Promise<Category> {
     try {
       const createdCategory = new this.categoryModel(category);
 
@@ -26,7 +24,7 @@ export class AppService {
     }
   }
 
-  async getAllCategories(): Promise<Category[]> {
+  async getAll(): Promise<Category[]> {
     try {
       return await this.categoryModel.find().exec();
     } catch (err) {
@@ -36,7 +34,7 @@ export class AppService {
     }
   }
 
-  async getCategoryById(_id: string): Promise<Category> {
+  async getById(_id: string): Promise<Category> {
     try {
       return await this.categoryModel.findOne({ _id }).exec();
     } catch (err) {
@@ -46,7 +44,7 @@ export class AppService {
     }
   }
 
-  async updateCategory(name: string, category: Category): Promise<void> {
+  async update(name: string, category: Category): Promise<void> {
     try {
       await this.categoryModel
         .findOneAndUpdate({ name }, { $set: category })
