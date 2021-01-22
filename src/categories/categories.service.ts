@@ -26,7 +26,7 @@ export class CategoriesService {
 
   async getAll(): Promise<Category[]> {
     try {
-      return await this.categoryModel.find().exec();
+      return await this.categoryModel.find().populate('players').exec();
     } catch (err) {
       this.logger.error(`error: ${JSON.stringify(err.message)}`);
 
@@ -36,7 +36,10 @@ export class CategoriesService {
 
   async getById(_id: string): Promise<Category> {
     try {
-      return await this.categoryModel.findOne({ _id }).exec();
+      return await this.categoryModel
+        .findOne({ _id })
+        .populate('players')
+        .exec();
     } catch (err) {
       this.logger.error(`error: ${JSON.stringify(err.message)}`);
 

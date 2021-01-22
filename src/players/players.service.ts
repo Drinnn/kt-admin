@@ -26,7 +26,7 @@ export class PlayersService {
 
   async getAll(): Promise<Player[]> {
     try {
-      return await this.playerModel.find().exec();
+      return await this.playerModel.find().populate('category').exec();
     } catch (err) {
       this.logger.error(`error: ${JSON.stringify(err.message)}`);
 
@@ -36,7 +36,10 @@ export class PlayersService {
 
   async getById(_id: string): Promise<Player> {
     try {
-      return await this.playerModel.findOne({ _id }).exec();
+      return await this.playerModel
+        .findOne({ _id })
+        .populate('category')
+        .exec();
     } catch (err) {
       this.logger.error(`error: ${JSON.stringify(err.message)}`);
 
